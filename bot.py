@@ -6,7 +6,6 @@ from config import API_ID, API_HASH, BOT_TOKEN, STICKER_ID
 from utils.sticker import check_sticker
 
 Setup Logging
-
 logging.basicConfig( level=logging.INFO, format="%(asctime)s - [%(levelname)s] - %(name)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S" )
 
 Init Bot

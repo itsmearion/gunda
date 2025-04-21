@@ -37,7 +37,7 @@ async def start(client, message):
             await asyncio.sleep(3)
             await sticker_msg.delete()
         else:
-            warning_msg = await client.send_message(chat_id, "⚠️ sihir gagal\\.\\.\\. stiker tidak bisa dikirim \\~", parse_mode="MarkdownV2")
+            warning_msg = await client.send_message(chat_id, "⚠️ sihir gagal\\.\\.\\. stiker tidak bisa dikirim \\~",", parse_mode="MarkdownV2")
             await asyncio.sleep(3)
             await warning_msg.delete()
 

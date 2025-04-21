@@ -103,6 +103,24 @@ async def format_button(client, callback_query):
     except Exception as e:
         logging.error(f"Terjadi kesalahan dalam alur tombol format: {e}")
 
+# --- Unit Test ---
+if __name__ == "__main__" and False:  # Ganti ke True untuk testing manual
+    test_cases = [
+        "*bold*",
+        "_italic_",
+        "[link](https://example.com)",
+        "~strike~",
+        "`code`",
+        "special chars !(){}[]-_.",
+        "Salutations I'm @user, pay via [gopay].",
+    ]
+
+    print("Testing escape_markdown_v2()...")
+    for i, case in enumerate(test_cases, 1):
+        escaped = escape_markdown_v2(case)
+        print(f"{i}. Original : {case}")
+        print(f"   Escaped  : {escaped}\n")
+
 # --- Jalankan Bot ---
 if __name__ == "__main__":
     app.run()

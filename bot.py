@@ -1,24 +1,23 @@
 import asyncio
 import logging
 import re
-from pyrogram import Client, filters
+from pyrogram import Client, Filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from config import API_ID, API_HASH, BOT_TOKEN, STICKER_ID
 from utils.sticker import check_sticker
 
-# Fungsi escape untuk MarkdownV2
-def escape_markdown_v2(text: str) -> str:
-    escape_chars = r'\_*[]()~`>#+-=|{}.!'
-    return re.sub(f'([{re.escape(escape_chars)}])', r'\\\1', text)
+# Markdown escape (Markdown biasa, bukan v2)
+def escape_markdown(text: str) -> str:
+    return re.sub(r'([_*()~`>#+=|{}.!\\-])', r'\\\1', text)
 
-# Setup Logging
+# Logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - [%(levelname)s] - %(name)s - %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S"
 )
 
-# Inisialisasi Bot
+# Init Bot
 app = Client(
     "blakeshley_bot",
     api_id=API_ID,
@@ -26,62 +25,47 @@ app = Client(
     bot_token=BOT_TOKEN
 )
 
-# --- Start Command ---
-@app.on_message(filters.command("start") & filters.private)
+# --- /start command ---
+@app.on_message(Filters.command("start") & Filters.private)
 async def start(client, message):
     chat_id = message.chat.id
 
     try:
-        # Teks pertama
         text1 = "༄❀ delicate petals drift around you... ᯓ༄"
-        first_msg = await client.send_message(
-            chat_id, escape_markdown_v2(text1), parse_mode="MarkdownV2"
-        )
+        msg1 = await client.send_message(chat_id, escape_markdown(text1), parse_mode="markdown")
         await asyncio.sleep(3)
-        await first_msg.delete()
+        await msg1.delete()
 
-        # Sticker aesthetic
         if await check_sticker(client, STICKER_ID):
             sticker_msg = await client.send_sticker(chat_id, STICKER_ID)
             await asyncio.sleep(3)
             await sticker_msg.delete()
         else:
-            warning_msg = await client.send_message(
-                chat_id,
-                escape_markdown_v2("⚠️ sihir gagal... stiker tidak bisa dikirim ~"),
-                parse_mode="MarkdownV2"
-            )
+            msg2 = await client.send_message(chat_id, escape_markdown("⚠️ sihir gagal... stiker tidak bisa dikirim ~"), parse_mode="markdown")
             await asyncio.sleep(3)
-            await warning_msg.delete()
+            await msg2.delete()
 
-        # Teks kedua
         text2 = "༄ feathers of dreams flutter in the twilight ~ ❀༄"
-        second_msg = await client.send_message(
-            chat_id, escape_markdown_v2(text2), parse_mode="MarkdownV2"
-        )
+        msg3 = await client.send_message(chat_id, escape_markdown(text2), parse_mode="markdown")
         await asyncio.sleep(3)
-        await second_msg.delete()
+        await msg3.delete()
 
-        # Menu button
         keyboard = InlineKeyboardMarkup([
             [InlineKeyboardButton("ᯓ ✎ format your wishes ✎", callback_data="format")]
         ])
         menu_text = "𖤓 pilih pesonamu, wahai pengelana ~"
-        await client.send_message(
-            chat_id,
-            escape_markdown_v2(menu_text),
-            parse_mode="MarkdownV2",
-            reply_markup=keyboard
-        )
+        await client.send_message(chat_id, escape_markdown(menu_text), reply_markup=keyboard, parse_mode="markdown")
 
     except Exception as e:
         logging.error(f"Terjadi kesalahan saat start: {e}")
 
-# --- Format Order Button ---
-@app.on_callback_query(filters.regex("format"))
+# --- Format Button ---
+@app.on_callback_query(Filters.regex("format"))
 async def format_button(client, callback_query):
     try:
-        await callback_query.answer()
+        if callback_query.data:
+            await callback_query.answer("Menyiapkan format...")
+
         username = callback_query.from_user.username or "username"
 
         text = (
@@ -90,20 +74,14 @@ async def format_button(client, callback_query):
             f"The total comes to IDR [00.000] Inrush add 5k [yay/nay]. "
             f"Kindly process this, Thanks a bunch."
         )
-
-        escaped_text = escape_markdown_v2(text)
-        formatted_text = "*Copy and Paste This:*\n\n```" + escaped_text + "```"
-        final_text = escape_markdown_v2("*Copy and Paste This:*") + "\n\n```" + escaped_text + "```"
+        escaped_text = escape_markdown(text)
+        final_message = "*Copy and Paste This:*\n\n```" + escaped_text + "```"
 
         keyboard = InlineKeyboardMarkup([
-            [InlineKeyboardButton("ᯓ ✎ Copy Here", switch_inline_query_current_chat=text)]
+            [InlineKeyboardButton("ᯓ ✎ Copy Here", switch_inline_query=text)]
         ])
 
-        sent = await callback_query.message.reply_text(
-            final_text,
-            parse_mode="MarkdownV2",
-            reply_markup=keyboard
-        )
+        sent = await client.send_message(callback_query.message.chat.id, final_message, reply_markup=keyboard, parse_mode="markdown")
 
         await asyncio.sleep(420)
 
@@ -111,36 +89,14 @@ async def format_button(client, callback_query):
         try:
             await callback_query.message.delete()
         except Exception as e:
-            logging.warning(f"Gagal menghapus pesan tombol format: {e}")
+            logging.warning(f"Gagal hapus pesan format: {e}")
 
         farewell = "༄ sihir memudar ke dalam kabut... ༄"
-        await client.send_message(
-            callback_query.message.chat.id,
-            escape_markdown_v2(farewell),
-            parse_mode="MarkdownV2"
-        )
+        await client.send_message(callback_query.message.chat.id, escape_markdown(farewell), parse_mode="markdown")
 
     except Exception as e:
-        logging.error(f"Terjadi kesalahan dalam alur tombol format: {e}")
+        logging.error(f"Terjadi kesalahan tombol format: {e}")
 
-# --- Unit Test ---
-if __name__ == "__main__" and False:  # Ganti ke True untuk testing manual
-    test_cases = [
-        "*bold*",
-        "_italic_",
-        "[link](https://example.com)",
-        "~strike~",
-        "`code`",
-        "special chars !(){}[]-_.",
-        "Salutations I'm @user, pay via [gopay].",
-    ]
-
-    print("Testing escape_markdown_v2()...")
-    for i, case in enumerate(test_cases, 1):
-        escaped = escape_markdown_v2(case)
-        print(f"{i}. Original : {case}")
-        print(f"   Escaped  : {escaped}\n")
-
-# --- Jalankan Bot ---
+# Run bot
 if __name__ == "__main__":
     app.run()

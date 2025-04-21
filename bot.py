@@ -1,11 +1,11 @@
 import asyncio
 import logging
 from pyrogram import Client, filters
-from pyrogram.enums import ParseMode
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from config import API_ID, API_HASH, BOT_TOKEN, STICKER_ID
+from utils.database import save_message_mapping, load_message_mappings
+from utils.notice import delay_notice
 from utils.sticker import check_sticker
-from html import escape
 
 # Setup Logging
 logging.basicConfig(
@@ -16,7 +16,7 @@ logging.basicConfig(
 
 # Init Bot
 app = Client(
-    "blakeshley_bot",
+    "@blakeshley2bot",
     api_id=API_ID,
     api_hash=API_HASH,
     bot_token=BOT_TOKEN
@@ -41,6 +41,7 @@ async def start(client, message):
     await asyncio.sleep(1)
     await message.reply_text("༄ feathers of dreams flutter in the twilight ~ ❀༄")
 
+    # Button format order
     keyboard = InlineKeyboardMarkup([
         [InlineKeyboardButton("ᯓ ✎ format your wishes ✎", callback_data="format")]
     ])
@@ -55,7 +56,7 @@ async def format_button(client, callback_query):
     try:
         await callback_query.answer()
         username = callback_query.from_user.username or "username"
-
+        
         text = (
             f"Salutations I'm @{username}, I’d like to place an order for catalog t.me/blakeshley listed at Blakeshley, "
             f"Using payment method [dana, gopay, qriss, spay, ovo, bank.] "
@@ -66,14 +67,15 @@ async def format_button(client, callback_query):
         keyboard = InlineKeyboardMarkup([
             [InlineKeyboardButton("ᯓ ✎ Copy Here", switch_inline_query_current_chat=text)]
         ])
-
+        
         sent = await callback_query.message.reply_text(
-            f"<b>Copy and Paste This:</b>\n\n<code>{escape(text)}</code>",
-            parse_mode=ParseMode.HTML,
+            f"<b>Copy and Paste This:</b>\n\n<code>{text}</code>",
+            parse_mode="HTML",
             reply_markup=keyboard
         )
 
         await asyncio.sleep(420)  # 7 menit
+
         await sent.delete()
 
         try:
@@ -88,6 +90,4 @@ async def format_button(client, callback_query):
 
     except Exception as e:
         logging.error(f"Error in format button flow: {e}")
-
-# --- Run Bot ---
 app.run()

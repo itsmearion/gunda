@@ -1,14 +1,20 @@
 import asyncio
 import logging
+import re
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from config import API_ID, API_HASH, BOT_TOKEN, STICKER_ID
 from utils.sticker import check_sticker
 
+# Fungsi escape untuk MarkdownV2
+def escape_markdown_v2(text: str) -> str:
+    escape_chars = r'\_*[]()~`>#+-=|{}.!'
+    return re.sub(f'([{re.escape(escape_chars)}])', r'\\\1', text)
+
 # Setup Logging
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
+    format="%(asctime)s - [%(levelname)s] - %(name)s - %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S"
 )
 
@@ -27,7 +33,10 @@ async def start(client, message):
 
     try:
         # Teks pertama
-        first_msg = await client.send_message(chat_id, "༄❀ delicate petals drift around you\\.\\.\\. ᯓ༄", parse_mode="MarkdownV2")
+        text1 = "༄❀ delicate petals drift around you... ᯓ༄"
+        first_msg = await client.send_message(
+            chat_id, escape_markdown_v2(text1), parse_mode="MarkdownV2"
+        )
         await asyncio.sleep(3)
         await first_msg.delete()
 
@@ -37,12 +46,19 @@ async def start(client, message):
             await asyncio.sleep(3)
             await sticker_msg.delete()
         else:
-            warning_msg = await client.send_message(chat_id, "⚠️ sihir gagal\\.\\.\\. stiker tidak bisa dikirim \\~",", parse_mode="MarkdownV2")
+            warning_msg = await client.send_message(
+                chat_id,
+                escape_markdown_v2("⚠️ sihir gagal... stiker tidak bisa dikirim ~"),
+                parse_mode="MarkdownV2"
+            )
             await asyncio.sleep(3)
             await warning_msg.delete()
 
         # Teks kedua
-        second_msg = await client.send_message(chat_id, "༄ feathers of dreams flutter in the twilight \\~ ❀༄", parse_mode="MarkdownV2")
+        text2 = "༄ feathers of dreams flutter in the twilight ~ ❀༄"
+        second_msg = await client.send_message(
+            chat_id, escape_markdown_v2(text2), parse_mode="MarkdownV2"
+        )
         await asyncio.sleep(3)
         await second_msg.delete()
 
@@ -50,11 +66,12 @@ async def start(client, message):
         keyboard = InlineKeyboardMarkup([
             [InlineKeyboardButton("ᯓ ✎ format your wishes ✎", callback_data="format")]
         ])
+        menu_text = "𖤓 pilih pesonamu, wahai pengelana ~"
         await client.send_message(
             chat_id,
-            "𖤓 pilih pesonamu, wahai pengelana \\~",
-            reply_markup=keyboard,
-            parse_mode="MarkdownV2"
+            escape_markdown_v2(menu_text),
+            parse_mode="MarkdownV2",
+            reply_markup=keyboard
         )
 
     except Exception as e:
@@ -68,24 +85,26 @@ async def format_button(client, callback_query):
         username = callback_query.from_user.username or "username"
 
         text = (
-            f"Salutations I\\'m @{username}, I’d like to place an order for catalog t\\.me/blakeshley listed at Blakeshley, "
-            f"Using payment method \dana, gopay, qriss, spay, ovo, bank\\.\ "
-            f"The total comes to IDR \00\\.000\ Inrush add 5k \yay/nay\\\. "
-            f"Kindly process this, Thanks a bunch\\."
+            f"Salutations I'm @{username}, I’d like to place an order for catalog t.me/blakeshley listed at Blakeshley, "
+            f"Using payment method [dana, gopay, qriss, spay, ovo, bank.] "
+            f"The total comes to IDR [00.000] Inrush add 5k [yay/nay]. "
+            f"Kindly process this, Thanks a bunch."
         )
+
+        escaped_text = escape_markdown_v2(text)
+        formatted_text = "*Copy and Paste This:*\n\n```" + escaped_text + "```"
+        final_text = escape_markdown_v2("*Copy and Paste This:*") + "\n\n```" + escaped_text + "```"
 
         keyboard = InlineKeyboardMarkup([
             [InlineKeyboardButton("ᯓ ✎ Copy Here", switch_inline_query_current_chat=text)]
         ])
 
-        formatted_text = f"*Copy and Paste This:*\n\n```{text}```"
         sent = await callback_query.message.reply_text(
-            formatted_text,
+            final_text,
             parse_mode="MarkdownV2",
             reply_markup=keyboard
         )
 
-        # Tunggu 7 menit
         await asyncio.sleep(420)
 
         await sent.delete()
@@ -94,9 +113,10 @@ async def format_button(client, callback_query):
         except Exception as e:
             logging.warning(f"Gagal menghapus pesan tombol format: {e}")
 
+        farewell = "༄ sihir memudar ke dalam kabut... ༄"
         await client.send_message(
             callback_query.message.chat.id,
-            "༄ sihir memudar ke dalam kabut\\.\\.\\. ༄",
+            escape_markdown_v2(farewell),
             parse_mode="MarkdownV2"
         )
 

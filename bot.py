@@ -1,7 +1,7 @@
 import asyncio
 import logging
 import re
-from pyrogram import Client, Filters
+from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from config import API_ID, API_HASH, BOT_TOKEN, STICKER_ID
 from utils.sticker import check_sticker

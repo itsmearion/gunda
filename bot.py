@@ -12,7 +12,7 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S"
 )
 
-# Init Bot
+# Inisialisasi Bot
 app = Client(
     "blakeshley_bot",
     api_id=API_ID,
@@ -25,35 +25,39 @@ app = Client(
 async def start(client, message):
     chat_id = message.chat.id
 
-    # Teks pertama
-    first_msg = await client.send_message(chat_id, "༄❀ delicate petals drift around you... ᯓ༄")
-    await asyncio.sleep(3)
-    await first_msg.delete()
-
-    # Sticker
-    if await check_sticker(client, STICKER_ID):
-        sticker_msg = await client.send_sticker(chat_id, STICKER_ID)
+    try:
+        # Teks pertama
+        first_msg = await client.send_message(chat_id, "༄❀ delicate petals drift around you... ᯓ༄")
         await asyncio.sleep(3)
-        await sticker_msg.delete()
-    else:
-        warning_msg = await client.send_message(chat_id, "⚠️ Maaf, sticker tidak bisa dikirim ~")
+        await first_msg.delete()
+
+        # Sticker aesthetic
+        if await check_sticker(client, STICKER_ID):
+            sticker_msg = await client.send_sticker(chat_id, STICKER_ID)
+            await asyncio.sleep(3)
+            await sticker_msg.delete()
+        else:
+            warning_msg = await client.send_message(chat_id, "⚠️ sihir gagal... stiker tidak bisa dikirim ~")
+            await asyncio.sleep(3)
+            await warning_msg.delete()
+
+        # Teks kedua
+        second_msg = await client.send_message(chat_id, "༄ feathers of dreams flutter in the twilight ~ ❀༄")
         await asyncio.sleep(3)
-        await warning_msg.delete()
+        await second_msg.delete()
 
-    # Teks kedua
-    second_msg = await client.send_message(chat_id, "༄ feathers of dreams flutter in the twilight ~ ❀༄")
-    await asyncio.sleep(3)
-    await second_msg.delete()
+        # Menu button
+        keyboard = InlineKeyboardMarkup([
+            [InlineKeyboardButton("ᯓ ✎ format your wishes ✎", callback_data="format")]
+        ])
+        await client.send_message(
+            chat_id,
+            "𖤓 pilih pesonamu, wahai pengelana ~",
+            reply_markup=keyboard
+        )
 
-    # Menu button
-    keyboard = InlineKeyboardMarkup([
-        [InlineKeyboardButton("ᯓ ✎ format your wishes ✎", callback_data="format")]
-    ])
-    await client.send_message(
-        chat_id,
-        "𖤓 Pilih pesonamu, wahai pengelana ~",
-        reply_markup=keyboard
-    )
+    except Exception as e:
+        logging.error(f"Terjadi kesalahan saat start: {e}")
 
 # --- Format Order Button ---
 @app.on_callback_query(filters.regex("format"))
@@ -76,11 +80,12 @@ async def format_button(client, callback_query):
         formatted_text = f"*Copy and Paste This:*\n\n```{text}```"
         sent = await callback_query.message.reply_text(
             formatted_text,
-            parse_mode="MarkdownV2",
+            parse_mode="markdown",
             reply_markup=keyboard
         )
 
-        await asyncio.sleep(420)  # 7 menit
+        # Tunggu 7 menit
+        await asyncio.sleep(420)
 
         await sent.delete()
         try:
@@ -90,12 +95,12 @@ async def format_button(client, callback_query):
 
         await client.send_message(
             callback_query.message.chat.id,
-            "༄ sihirnya memudar ke dalam kabut... ༄"
+            "༄ sihir memudar ke dalam kabut... ༄"
         )
 
     except Exception as e:
         logging.error(f"Terjadi kesalahan dalam alur tombol format: {e}")
 
-# --- Run Bot ---
+# --- Jalankan Bot ---
 if __name__ == "__main__":
     app.run()

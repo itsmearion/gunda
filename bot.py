@@ -8,7 +8,7 @@ from utils.sticker import check_sticker
 # Setup Logging
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - [%(levelname)s] - %(name)s - %(message)s",
+    format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S"
 )
 
@@ -27,7 +27,7 @@ async def start(client, message):
 
     try:
         # Teks pertama
-        first_msg = await client.send_message(chat_id, "༄❀ delicate petals drift around you... ᯓ༄")
+        first_msg = await client.send_message(chat_id, "༄❀ delicate petals drift around you\\.\\.\\. ᯓ༄", parse_mode="MarkdownV2")
         await asyncio.sleep(3)
         await first_msg.delete()
 
@@ -37,12 +37,12 @@ async def start(client, message):
             await asyncio.sleep(3)
             await sticker_msg.delete()
         else:
-            warning_msg = await client.send_message(chat_id, "⚠️ sihir gagal... stiker tidak bisa dikirim ~")
+            warning_msg = await client.send_message(chat_id, "⚠️ sihir gagal\\.\\.\\. stiker tidak bisa dikirim \\~", parse_mode="MarkdownV2")
             await asyncio.sleep(3)
             await warning_msg.delete()
 
         # Teks kedua
-        second_msg = await client.send_message(chat_id, "༄ feathers of dreams flutter in the twilight ~ ❀༄")
+        second_msg = await client.send_message(chat_id, "༄ feathers of dreams flutter in the twilight \\~ ❀༄", parse_mode="MarkdownV2")
         await asyncio.sleep(3)
         await second_msg.delete()
 
@@ -52,8 +52,9 @@ async def start(client, message):
         ])
         await client.send_message(
             chat_id,
-            "𖤓 pilih pesonamu, wahai pengelana ~",
-            reply_markup=keyboard
+            "𖤓 pilih pesonamu, wahai pengelana \\~",
+            reply_markup=keyboard,
+            parse_mode="MarkdownV2"
         )
 
     except Exception as e:
@@ -67,10 +68,10 @@ async def format_button(client, callback_query):
         username = callback_query.from_user.username or "username"
 
         text = (
-            f"Salutations I'm @{username}, I’d like to place an order for catalog t.me/blakeshley listed at Blakeshley, "
-            f"Using payment method [dana, gopay, qriss, spay, ovo, bank.] "
-            f"The total comes to IDR [00.000] Inrush add 5k [yay/nay]. "
-            f"Kindly process this, Thanks a bunch."
+            f"Salutations I\\'m @{username}, I’d like to place an order for catalog t\\.me/blakeshley listed at Blakeshley, "
+            f"Using payment method \dana, gopay, qriss, spay, ovo, bank\\.\ "
+            f"The total comes to IDR \00\\.000\ Inrush add 5k \yay/nay\\\. "
+            f"Kindly process this, Thanks a bunch\\."
         )
 
         keyboard = InlineKeyboardMarkup([
@@ -95,7 +96,8 @@ async def format_button(client, callback_query):
 
         await client.send_message(
             callback_query.message.chat.id,
-            "༄ sihir memudar ke dalam kabut... ༄"
+            "༄ sihir memudar ke dalam kabut\\.\\.\\. ༄",
+            parse_mode="MarkdownV2"
         )
 
     except Exception as e:

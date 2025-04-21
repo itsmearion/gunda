@@ -80,7 +80,7 @@ async def format_button(client, callback_query):
         formatted_text = f"*Copy and Paste This:*\n\n```{text}```"
         sent = await callback_query.message.reply_text(
             formatted_text,
-            parse_mode="markdown",
+            parse_mode="MarkdownV2",
             reply_markup=keyboard
         )
 

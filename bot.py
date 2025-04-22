@@ -6,10 +6,9 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from config import API_ID, API_HASH, BOT_TOKEN, STICKER_ID
 from utils.sticker import check_sticker
 
-# Escape untuk MarkdownV2
-def escape_markdown_v2(text: str) -> str:
-    escape_chars = r'\_*[]()~`>#+-=|{}.!'
-    return re.sub(f"([{re.escape(escape_chars)}])", r'\\\1', text)
+# Escape untuk Markdown (v1)
+def escape_markdown(text: str) -> str:
+    return re.sub(r'([_*()~`>#+=|{}.!\\-])', r'\\\1', text)
 
 # Logging setup
 logging.basicConfig(
@@ -32,8 +31,8 @@ async def start(client, message):
     chat_id = message.chat.id
 
     try:
-        text1 = "༄❀ Delicate petals drift around you... ᯓ༄"
-        msg1 = await client.send_message(chat_id, text1, parse_mode="HTML")
+        text1 = "༄❀ delicate petals drift around you... ᯓ༄"
+        msg1 = await client.send_message(chat_id, escape_markdown(text1), parse_mode="markdown")
         await asyncio.sleep(3)
         await msg1.delete()
 
@@ -44,14 +43,14 @@ async def start(client, message):
         else:
             msg2 = await client.send_message(
                 chat_id,
-                "⚠️ Sihir gagal... stiker tidak bisa dikirim ~",
-                parse_mode="HTML"
+                escape_markdown("⚠️ sihir gagal... stiker tidak bisa dikirim ~"),
+                parse_mode="markdown"
             )
             await asyncio.sleep(3)
             await msg2.delete()
 
-        text2 = "༄ Feathers of dreams flutter in the twilight ~ ❀༄"
-        msg3 = await client.send_message(chat_id, text2, parse_mode="HTML")
+        text2 = "༄ feathers of dreams flutter in the twilight ~ ❀༄"
+        msg3 = await client.send_message(chat_id, escape_markdown(text2), parse_mode="markdown")
         await asyncio.sleep(3)
         await msg3.delete()
 
@@ -61,9 +60,9 @@ async def start(client, message):
 
         await client.send_message(
             chat_id,
-            "𖤓 Pilih pesonamu, wahai pengelana ~",
+            escape_markdown("𖤓 pilih pesonamu, wahai pengelana ~"),
             reply_markup=keyboard,
-            parse_mode="HTML"
+            parse_mode="markdown"
         )
 
     except Exception as e:
@@ -83,7 +82,7 @@ async def format_button(client, callback_query):
             f"Kindly process this, Thanks a bunch."
         )
 
-        escaped_text = escape_markdown_v2(text)
+        escaped_text = escape_markdown(text)
         message_content = f"*Copy and Paste This:*\n\n```{escaped_text}```"
 
         keyboard = InlineKeyboardMarkup([
@@ -93,7 +92,7 @@ async def format_button(client, callback_query):
         sent = await client.send_message(
             callback_query.message.chat.id,
             message_content,
-            parse_mode="MarkdownV2",
+            parse_mode="markdown",
             reply_markup=keyboard
         )
 
@@ -107,8 +106,8 @@ async def format_button(client, callback_query):
 
         await client.send_message(
             callback_query.message.chat.id,
-            "༄ Sihir memudar ke dalam kabut... ༄",
-            parse_mode="HTML"
+            escape_markdown("༄ sihir memudar ke dalam kabut... ༄"),
+            parse_mode="markdown"
         )
 
     except Exception as e:
